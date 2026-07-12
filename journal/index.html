@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Good Time Journal</title>
+<meta name="description" content="Catch the moments that engage and energize you. Designing Your Life method.">
+<meta name="theme-color" content="#F3F5F0">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Journal">
+<style>
+  :root {
+    --paper: #F3F5F0;
+    --card: #FFFFFF;
+    --ink: #22302B;
+    --ink-soft: #5C6B64;
+    --line: #DDE4DD;
+    --teal: #3E7C6B;
+    --teal-soft: #E3EEE9;
+    --amber: #DFA050;
+    --amber-soft: #F8EDDC;
+    --plum: #8C5A72;
+    --plum-soft: #F0E4EB;
+    --flow: #2F5D8A;
+    --flow-soft: #E2ECF5;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    padding-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+  [hidden] { display: none !important; }
+
+  header.app { padding: 28px 0 10px; position: relative; }
+  h1 { font-family: var(--serif); font-size: 30px; margin: 0; font-weight: 400; }
+  .tagline { font-size: 13px; color: var(--ink-soft); margin: 6px 0 0; }
+  .signout {
+    position: absolute; top: 32px; right: 0;
+    background: none; border: none; color: var(--ink-soft);
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    cursor: pointer; padding: 4px 0;
+  }
+  .signout:hover { color: var(--teal); }
+
+  nav.tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+  nav.tabs button {
+    flex: 1; padding: 10px 0; border: none; background: transparent;
+    border-bottom: 3px solid transparent;
+    color: var(--ink-soft); font-family: var(--sans); font-size: 14px; font-weight: 500;
+    cursor: pointer;
+  }
+  nav.tabs button.active { border-bottom-color: var(--teal); color: var(--ink); font-weight: 700; }
+
+  .banner {
+    background: var(--plum-soft); color: var(--plum); border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; margin-bottom: 16px;
+  }
+  .banner.ok { background: var(--teal-soft); color: var(--teal); }
+
+  .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid var(--line); }
+  .card.tight { border-radius: 14px; padding: 16px; }
+
+  label.field {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+    color: var(--ink-soft); display: block; margin-bottom: 8px;
+  }
+  input[type="text"], input[type="email"], input[type="password"],
+  input[type="datetime-local"], textarea {
+    width: 100%; padding: 12px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: #FBFCFA;
+    font-family: var(--sans); font-size: 15px; color: var(--ink); outline: none;
+  }
+  input:focus, textarea:focus { border-color: var(--teal); }
+  textarea { min-height: 60px; resize: vertical; }
+
+  /* engagement picker */
+  .eng-picker { display: flex; gap: 8px; }
+  .eng-picker button {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid var(--line); background: var(--card); color: var(--ink-soft);
+    font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .eng-picker button.on { border-color: var(--teal); background: var(--teal); color: #fff; }
+
+  /* energy slider */
+  input[type="range"] {
+    width: 100%; appearance: none; -webkit-appearance: none; height: 10px;
+    border-radius: 6px; outline: none; cursor: pointer;
+    background: linear-gradient(to right, var(--plum), #EAE6E1 50%, var(--amber));
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--ink-soft);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--ink-soft);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25); cursor: pointer;
+  }
+  .energy-legend { display: flex; justify-content: space-between; margin-top: 6px; font-size: 12px; color: var(--ink-soft); }
+  .energy-word { font-weight: 700; font-size: 13px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    border: 1.5px solid var(--line); background: var(--card); color: var(--ink-soft);
+    font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .pill.flow-on { border-color: var(--flow); background: var(--flow-soft); color: var(--flow); }
+
+  .when-row { display: flex; gap: 10px; align-items: center; }
+  .btn-now {
+    padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--card); color: var(--teal); font-family: var(--sans);
+    font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
+  }
+
+  .link-btn {
+    background: none; border: none; color: var(--teal); font-family: var(--sans);
+    font-size: 13px; font-weight: 700; cursor: pointer; padding: 0;
+  }
+  .link-btn.soft { color: var(--ink-soft); font-size: 12px; font-weight: 600; }
+
+  .btn-primary {
+    flex: 1; padding: 14px 0; border-radius: 12px; border: none;
+    background: var(--teal); color: #fff; font-family: var(--sans);
+    font-size: 15px; font-weight: 700; cursor: pointer; width: 100%;
+  }
+  .btn-primary:disabled { background: var(--line); cursor: default; }
+  .btn-secondary {
+    padding: 14px 18px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--card); color: var(--ink-soft); font-family: var(--sans);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-outline {
+    flex: 1; padding: 13px 0; border-radius: 12px; border: 1.5px solid var(--teal);
+    background: var(--card); color: var(--teal); font-family: var(--sans);
+    font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  .btn-outline:disabled { border-color: var(--line); color: var(--ink-soft); cursor: default; }
+
+  .day-h { font-family: var(--serif); font-size: 17px; font-weight: 400; color: var(--ink-soft); margin: 0 0 10px; }
+  article.entry { background: var(--card); border-radius: 14px; padding: 14px 16px; border: 1px solid var(--line); }
+  .entry-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .entry-top strong { font-size: 15px; }
+  .entry-time { font-size: 12px; color: var(--ink-soft); white-space: nowrap; }
+  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .badge {
+    border-radius: 999px; padding: 2px 10px; font-size: 11px;
+    font-weight: 700; letter-spacing: 0.3px;
+  }
+  .entry-notes { font-size: 13px; color: var(--ink-soft); margin: 8px 0 0; white-space: pre-wrap; }
+  .entry-actions { display: flex; gap: 14px; margin-top: 10px; }
+  .entry-actions .del { color: var(--plum); font-size: 12px; }
+  .entry-actions .edit { font-size: 12px; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 10px; text-align: center; }
+  .stat .val { font-family: var(--serif); font-size: 24px; }
+  .stat .lbl { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+  h3.sect { font-family: var(--serif); font-size: 17px; font-weight: 400; margin: 0 0 10px; }
+  .sect-line { font-size: 13px; margin: 4px 0; }
+  .muted { font-size: 13px; color: var(--ink-soft); margin: 0; }
+
+  .fmt-row { display: flex; gap: 8px; }
+  .fmt-row button {
+    flex: 1; padding: 10px 8px; border-radius: 10px;
+    border: 1.5px solid var(--line); background: var(--card); color: var(--ink-soft);
+    font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .fmt-row button.on { border-color: var(--teal); background: var(--teal-soft); color: var(--teal); }
+  .export-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .preview {
+    width: 100%; margin-top: 10px; min-height: 220px;
+    font-family: ui-monospace, Menlo, monospace; font-size: 12px;
+    padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line); background: #FBFCFA;
+  }
+  .hint-box { background: var(--teal-soft); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--ink); }
+
+  /* login */
+  .login-wrap { max-width: 400px; margin: 0 auto; padding: 60px 20px 0; }
+  .login-card { background: var(--card); border-radius: 16px; padding: 24px; border: 1px solid var(--line); margin-top: 24px; }
+  .login-err { color: var(--plum); font-size: 13px; margin: 12px 0 0; min-height: 1em; }
+  .center { text-align: center; }
+
+  .grid-gap { display: grid; gap: 14px; }
+  .mt-20 { margin-top: 20px; }
+  .mt-18 { margin-top: 18px; }
+  .mt-14 { margin-top: 14px; }
+  .mt-12 { margin-top: 12px; }
+  .offline-note { font-size: 12px; color: var(--ink-soft); text-align: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============ LOADING ============ -->
+<div id="loadingView" class="login-wrap center">
+  <h1 style="margin-top:40px">Good Time Journal</h1>
+  <p class="muted" style="margin-top:16px">Loading…</p>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginView" class="login-wrap" hidden>
+  <div class="center">
+    <h1>Good Time Journal</h1>
+    <p class="tagline">Catch the moments that engage and energize you.</p>
+  </div>
+  <form class="login-card" id="loginForm">
+    <label class="field" for="loginEmail">Email</label>
+    <input type="email" id="loginEmail" autocomplete="username" required>
+    <div class="mt-18">
+      <label class="field" for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" autocomplete="current-password" required>
+    </div>
+    <div class="mt-20">
+      <button type="submit" class="btn-primary" id="loginBtn">Sign in</button>
+    </div>
+    <p class="login-err" id="loginErr"></p>
+  </form>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="appView" class="wrap" hidden>
+  <header class="app">
+    <h1>Good Time Journal</h1>
+    <p class="tagline">Catch the moments that engage and energize you. Designing Your Life method.</p>
+    <button class="signout" id="signoutBtn">Sign out</button>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="journal" class="active">Journal</button>
+    <button data-tab="insights">Insights</button>
+    <button data-tab="export">Export</button>
+  </nav>
+
+  <div class="banner" id="banner" hidden></div>
+
+  <!-- ---------- JOURNAL TAB ---------- -->
+  <div id="journalTab">
+    <section class="card" style="margin-bottom:28px">
+      <label class="field" id="activityLabel">What were you doing?</label>
+      <input type="text" id="activity" placeholder="e.g. Reviewed pipeline with Elaine">
+
+      <div class="mt-20">
+        <label class="field">Engagement</label>
+        <div class="eng-picker" id="engPicker"></div>
+      </div>
+
+      <div class="mt-20">
+        <label class="field">Energy</label>
+        <input type="range" id="energy" min="-5" max="5" step="1" value="0"
+               aria-label="Energy from -5 draining to +5 energizing">
+        <div class="energy-legend">
+          <span>Drains me</span>
+          <span class="energy-word" id="energyWord"></span>
+          <span>Charges me</span>
+        </div>
+      </div>
+
+      <div class="mt-18">
+        <button type="button" class="pill" id="flowBtn">
+          <span id="flowDot" style="font-size:15px">○</span> Flow: I lost track of time
+        </button>
+      </div>
+
+      <div class="mt-18">
+        <label class="field">When</label>
+        <div id="whenNow">
+          <button type="button" class="pill" id="whenNowBtn">Now · tap to adjust</button>
+        </div>
+        <div id="whenPick" class="when-row" hidden>
+          <input type="datetime-local" id="whenInput" style="flex:1">
+          <button type="button" class="btn-now" id="whenResetBtn">Now</button>
+        </div>
+      </div>
+
+      <div class="mt-18">
+        <label class="field">Notes (optional)</label>
+        <textarea id="notes" placeholder="Anything worth remembering about this moment"></textarea>
+      </div>
+
+      <button type="button" class="link-btn mt-14" id="aeiouToggle">+ AEIOU reflection (deeper dive)</button>
+      <div id="aeiouFields" class="mt-12" style="display:none; grid-template-columns:1fr; gap:12px"></div>
+
+      <div style="display:flex; gap:10px; margin-top:20px">
+        <button type="button" class="btn-primary" id="saveBtn" disabled>Log this moment</button>
+        <button type="button" class="btn-secondary" id="cancelBtn" hidden>Cancel</button>
+      </div>
+    </section>
+
+    <div id="logList"></div>
+  </div>
+
+  <!-- ---------- INSIGHTS TAB ---------- -->
+  <div id="insightsTab" hidden></div>
+
+  <!-- ---------- EXPORT TAB ---------- -->
+  <div id="exportTab" hidden>
+    <div class="grid-gap">
+      <div class="card tight">
+        <label class="field">Format</label>
+        <div class="fmt-row">
+          <button id="fmtMd" class="on">Markdown (for Claude chats)</button>
+          <button id="fmtJson">JSON (for APIs &amp; pipelines)</button>
+        </div>
+        <div class="export-actions">
+          <button class="btn-primary" id="copyBtn" style="flex:1">Copy to clipboard</button>
+          <button class="btn-outline" id="downloadBtn">Download file</button>
+        </div>
+        <button class="link-btn soft mt-12" id="previewToggle">Show preview / manual copy</button>
+        <textarea class="preview" id="previewBox" readonly hidden></textarea>
+      </div>
+
+      <div class="hint-box">
+        <strong>How to use with AI:</strong> the Markdown export ends with a ready-made analysis
+        prompt. Paste the whole thing into a Claude chat and it will map your engagement, energy,
+        and flow patterns using the AEIOU lens.
+      </div>
+
+      <div class="card tight">
+        <h3 class="sect">Import from artifact</h3>
+        <p class="muted" style="margin-bottom:12px">
+          Pick the JSON file exported from the Claude artifact version. Entries already in the
+          journal (same time + activity) are skipped, so importing twice is safe.
+        </p>
+        <input type="file" id="importFile" accept="application/json,.json" style="font-size:13px">
+        <div class="mt-14">
+          <button class="btn-outline" id="importBtn" disabled style="width:100%">Import entries</button>
+        </div>
+        <p class="muted mt-12" id="importStatus"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+"use strict";
+
+// ---------- config ----------
+const SUPABASE_URL = "https://dzshhiitucvufowjuilk.supabase.co";
+const SUPABASE_KEY = "sb_publishable_CKkbHC-MKBy22Mml627ehQ_tJrwyubI"; // publishable by design; RLS protects rows
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const AEIOU_FIELDS = [
+  { key: "activities",   label: "Activities",   hint: "What exactly were you doing?" },
+  { key: "environments", label: "Environments", hint: "Where were you? What did the place feel like?" },
+  { key: "interactions", label: "Interactions", hint: "Who or what were you interacting with?" },
+  { key: "objects",      label: "Objects",      hint: "Tools, devices, things involved" },
+  { key: "users",        label: "Users",        hint: "Who else was there? What role did they play?" },
+];
+const EMPTY_AEIOU = { activities: "", environments: "", interactions: "", objects: "", users: "" };
+
+// ---------- helpers ----------
+const $ = (id) => document.getElementById(id);
+
+const esc = (s) => String(s ?? "")
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+  .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+const fmtDate = (ts) =>
+  new Date(ts).toLocaleDateString("en-SG", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+
+const fmtTime = (ts) =>
+  new Date(ts).toLocaleTimeString("en-SG", { hour: "numeric", minute: "2-digit" });
+
+const dayKey = (ts) => {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const tsToLocal = (ts) => {
+  const d = new Date(ts);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
+const energyWord = (v) => {
+  if (v <= -4) return "Deeply draining";
+  if (v <= -2) return "Draining";
+  if (v === -1) return "Slightly draining";
+  if (v === 0) return "Neutral";
+  if (v === 1) return "Slightly energizing";
+  if (v <= 3) return "Energizing";
+  return "Fully charged";
+};
+
+const energyColorVar = (v) => (v > 0 ? "var(--amber)" : v < 0 ? "var(--plum)" : "var(--ink-soft)");
+const signed = (v) => (v > 0 ? "+" : "") + v;
+
+// DB row -> local entry (ts as epoch ms, like the artifact)
+const fromRow = (r) => ({
+  id: r.id,
+  ts: new Date(r.ts).getTime(),
+  activity: r.activity,
+  engagement: r.engagement,
+  energy: r.energy,
+  flow: r.flow,
+  notes: r.notes || "",
+  aeiou: { ...EMPTY_AEIOU, ...(r.aeiou || {}) },
+});
+
+// local entry fields -> DB row
+const toRow = (e) => ({
+  ts: new Date(e.ts).toISOString(),
+  activity: e.activity,
+  engagement: e.engagement,
+  energy: e.energy,
+  flow: e.flow,
+  notes: e.notes,
+  aeiou: e.aeiou,
+});
+
+// ---------- state ----------
+let entries = [];          // sorted newest first
+let view = "journal";
+let editingId = null;
+let engagement = 3;
+let flow = false;
+let when = null;           // null = now, else "YYYY-MM-DDTHH:MM"
+let aeiou = { ...EMPTY_AEIOU };
+let showAeiou = false;
+let exportFormat = "markdown";
+
+// ---------- banner ----------
+let bannerTimer = null;
+function showBanner(msg, ok = false) {
+  const b = $("banner");
+  b.textContent = msg;
+  b.className = "banner" + (ok ? " ok" : "");
+  b.hidden = false;
+  clearTimeout(bannerTimer);
+  if (ok) bannerTimer = setTimeout(() => { b.hidden = true; }, 3000);
+}
+function hideBanner() { $("banner").hidden = true; }
+
+// ---------- auth ----------
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session) await enterApp(); else showLogin();
+
+  db.auth.onAuthStateChange((event) => {
+    if (event === "SIGNED_OUT") {
+      entries = [];
+      showLogin();
+    }
+  });
+}
+
+function showLogin() {
+  $("loadingView").hidden = true;
+  $("appView").hidden = true;
+  $("loginView").hidden = false;
+}
+
+async function enterApp() {
+  $("loadingView").hidden = true;
+  $("loginView").hidden = true;
+  $("appView").hidden = false;
+  $("logList").innerHTML = `<p class="muted">Loading your journal…</p>`;
+  await loadEntries();
+}
+
+$("loginForm").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const btn = $("loginBtn");
+  btn.disabled = true; btn.textContent = "Signing in…";
+  $("loginErr").textContent = "";
+  const { error } = await db.auth.signInWithPassword({
+    email: $("loginEmail").value.trim(),
+    password: $("loginPassword").value,
+  });
+  btn.disabled = false; btn.textContent = "Sign in";
+  if (error) {
+    $("loginErr").textContent = error.message === "Invalid login credentials"
+      ? "Wrong email or password." : error.message;
+    return;
+  }
+  $("loginPassword").value = "";
+  await enterApp();
+});
+
+$("signoutBtn").addEventListener("click", async () => {
+  await db.auth.signOut();
+});
+
+// ---------- data ----------
+async function loadEntries() {
+  const { data, error } = await db.from("entries")
+    .select("id,ts,activity,engagement,energy,flow,notes,aeiou")
+    .order("ts", { ascending: false });
+  if (error) {
+    showBanner("Couldn't load entries: " + error.message);
+    $("logList").innerHTML = `<p class="muted">Couldn't load your journal. Check your connection and reload.</p>`;
+    return;
+  }
+  entries = data.map(fromRow);
+  renderLog();
+  renderCurrentTab();
+}
+
+// ---------- form ----------
+function renderEngPicker() {
+  $("engPicker").innerHTML = [1, 2, 3, 4, 5].map((n) =>
+    `<button type="button" class="${n <= engagement ? "on" : ""}" data-n="${n}" aria-label="Engagement ${n} of 5">${n}</button>`
+  ).join("");
+}
+$("engPicker").addEventListener("click", (ev) => {
+  const n = ev.target.closest("button")?.dataset.n;
+  if (n) { engagement = Number(n); renderEngPicker(); }
+});
+
+function renderEnergyWord() {
+  const v = Number($("energy").value);
+  const w = $("energyWord");
+  w.textContent = `${signed(v)} · ${energyWord(v)}`;
+  w.style.color = energyColorVar(v);
+}
+$("energy").addEventListener("input", renderEnergyWord);
+
+$("flowBtn").addEventListener("click", () => {
+  flow = !flow;
+  $("flowBtn").classList.toggle("flow-on", flow);
+  $("flowDot").textContent = flow ? "◉" : "○";
+});
+
+function renderWhen() {
+  $("whenNow").hidden = when !== null;
+  $("whenPick").hidden = when === null;
+  if (when !== null) $("whenInput").value = when;
+}
+$("whenNowBtn").addEventListener("click", () => { when = tsToLocal(Date.now()); renderWhen(); });
+$("whenInput").addEventListener("change", () => { when = $("whenInput").value; });
+$("whenResetBtn").addEventListener("click", () => {
+  when = editingId ? tsToLocal(Date.now()) : null;
+  renderWhen();
+});
+
+function renderAeiouFields() {
+  $("aeiouFields").style.display = showAeiou ? "grid" : "none";
+  $("aeiouToggle").textContent = showAeiou
+    ? "− Hide AEIOU reflection" : "+ AEIOU reflection (deeper dive)";
+  if (showAeiou && !$("aeiouFields").children.length) {
+    $("aeiouFields").innerHTML = AEIOU_FIELDS.map((f) => `
+      <div>
+        <label class="field" style="margin-bottom:4px" for="aeiou-${f.key}">${f.label}</label>
+        <input type="text" id="aeiou-${f.key}" placeholder="${esc(f.hint)}">
+      </div>`).join("");
+    AEIOU_FIELDS.forEach((f) => {
+      const inp = $("aeiou-" + f.key);
+      inp.value = aeiou[f.key];
+      inp.addEventListener("input", () => { aeiou[f.key] = inp.value; });
+    });
+  } else if ($("aeiouFields").children.length) {
+    AEIOU_FIELDS.forEach((f) => { $("aeiou-" + f.key).value = aeiou[f.key]; });
+  }
+}
+$("aeiouToggle").addEventListener("click", () => { showAeiou = !showAeiou; renderAeiouFields(); });
+
+$("activity").addEventListener("input", () => {
+  $("saveBtn").disabled = !$("activity").value.trim();
+});
+
+function resetForm() {
+  editingId = null;
+  engagement = 3;
+  flow = false;
+  when = null;
+  aeiou = { ...EMPTY_AEIOU };
+  showAeiou = false;
+  $("activity").value = "";
+  $("notes").value = "";
+  $("energy").value = 0;
+  $("activityLabel").textContent = "What were you doing?";
+  $("saveBtn").disabled = true;
+  $("saveBtn").textContent = "Log this moment";
+  $("cancelBtn").hidden = true;
+  $("flowBtn").classList.remove("flow-on");
+  $("flowDot").textContent = "○";
+  $("aeiouFields").innerHTML = "";
+  renderEngPicker(); renderEnergyWord(); renderWhen(); renderAeiouFields();
+}
+$("cancelBtn").addEventListener("click", resetForm);
+
+$("saveBtn").addEventListener("click", async () => {
+  const activity = $("activity").value.trim();
+  if (!activity) return;
+  const btn = $("saveBtn");
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+  hideBanner();
+
+  const fields = {
+    ts: when ? new Date(when).getTime()
+             : (editingId ? entries.find((e) => e.id === editingId).ts : Date.now()),
+    activity,
+    engagement,
+    energy: Number($("energy").value),
+    flow,
+    notes: $("notes").value.trim(),
+    aeiou,
+  };
+
+  let error, row;
+  if (editingId) {
+    ({ data: row, error } = await db.from("entries")
+      .update(toRow(fields)).eq("id", editingId).select().single());
+  } else {
+    ({ data: row, error } = await db.from("entries")
+      .insert(toRow(fields)).select().single());
+  }
+
+  if (error) {
+    showBanner("Saving failed — your entry is still on screen. Check your connection and tap save again.");
+    btn.disabled = false;
+    btn.textContent = editingId ? "Save changes" : "Log this moment";
+    return;
+  }
+
+  const saved = fromRow(row);
+  entries = editingId ? entries.map((e) => (e.id === editingId ? saved : e)) : [saved, ...entries];
+  entries.sort((a, b) => b.ts - a.ts);
+
+  resetForm();
+  renderLog();
+  btn.textContent = "Saved ✓";
+  setTimeout(() => {
+    if (!editingId && !$("activity").value.trim()) btn.textContent = "Log this moment";
+  }, 1800);
+});
+
+function editEntry(id) {
+  const e = entries.find((x) => x.id === id);
+  if (!e) return;
+  editingId = id;
+  engagement = e.engagement;
+  flow = e.flow;
+  when = tsToLocal(e.ts);
+  aeiou = { ...EMPTY_AEIOU, ...(e.aeiou || {}) };
+  showAeiou = Object.values(e.aeiou || {}).some(Boolean);
+  $("activity").value = e.activity;
+  $("notes").value = e.notes || "";
+  $("energy").value = e.energy;
+  $("activityLabel").textContent = "Editing entry";
+  $("saveBtn").disabled = false;
+  $("saveBtn").textContent = "Save changes";
+  $("cancelBtn").hidden = false;
+  $("flowBtn").classList.toggle("flow-on", flow);
+  $("flowDot").textContent = flow ? "◉" : "○";
+  $("aeiouFields").innerHTML = "";
+  renderEngPicker(); renderEnergyWord(); renderWhen(); renderAeiouFields();
+  switchTab("journal");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function deleteEntry(id) {
+  const e = entries.find((x) => x.id === id);
+  if (!e) return;
+  if (!confirm(`Delete "${e.activity}"?`)) return;
+  const { error } = await db.from("entries").delete().eq("id", id);
+  if (error) {
+    showBanner("Delete failed: " + error.message);
+    return;
+  }
+  entries = entries.filter((x) => x.id !== id);
+  if (editingId === id) resetForm();
+  renderLog();
+}
+
+// ---------- log ----------
+function renderLog() {
+  const list = $("logList");
+  if (!entries.length) {
+    list.innerHTML = `<div class="center" style="padding:30px 20px; font-size:14px; color:var(--ink-soft)">
+      No moments logged yet. Capture your first good time above.</div>`;
+    return;
+  }
+  const byDay = {};
+  entries.forEach((e) => { (byDay[dayKey(e.ts)] = byDay[dayKey(e.ts)] || []).push(e); });
+  const days = Object.entries(byDay).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+
+  list.innerHTML = days.map(([day, dayEntries]) => {
+    dayEntries.sort((a, b) => b.ts - a.ts);
+    return `<section style="margin-bottom:26px">
+      <h2 class="day-h">${fmtDate(dayEntries[0].ts)}</h2>
+      <div class="grid-gap" style="gap:10px">
+        ${dayEntries.map((e) => {
+          const enBg = e.energy > 0 ? "var(--amber-soft)" : e.energy < 0 ? "var(--plum-soft)" : "#EEF0EC";
+          return `<article class="entry">
+            <div class="entry-top">
+              <strong>${esc(e.activity)}</strong>
+              <span class="entry-time">${fmtTime(e.ts)}</span>
+            </div>
+            <div class="badges">
+              <span class="badge" style="background:var(--teal-soft); color:var(--teal)">Engagement ${e.engagement}/5</span>
+              <span class="badge" style="background:${enBg}; color:${energyColorVar(e.energy)}">Energy ${signed(e.energy)}</span>
+              ${e.flow ? `<span class="badge" style="background:var(--flow-soft); color:var(--flow)">Flow</span>` : ""}
+            </div>
+            ${e.notes ? `<p class="entry-notes">${esc(e.notes)}</p>` : ""}
+            <div class="entry-actions">
+              <button class="link-btn edit" data-edit="${e.id}">Edit</button>
+              <button class="link-btn del" data-del="${e.id}">Delete</button>
+            </div>
+          </article>`;
+        }).join("")}
+      </div>
+    </section>`;
+  }).join("");
+}
+$("logList").addEventListener("click", (ev) => {
+  const t = ev.target.closest("button");
+  if (!t) return;
+  if (t.dataset.edit) editEntry(t.dataset.edit);
+  if (t.dataset.del) deleteEntry(t.dataset.del);
+});
+
+// ---------- insights ----------
+function renderInsights() {
+  const tab = $("insightsTab");
+  if (!entries.length) {
+    tab.innerHTML = `<p class="muted" style="font-size:14px">Log a few moments first, then patterns show up here.</p>`;
+    return;
+  }
+  const avgEng = entries.reduce((s, e) => s + e.engagement, 0) / entries.length;
+  const avgEn = entries.reduce((s, e) => s + e.energy, 0) / entries.length;
+  const flows = entries.filter((e) => e.flow);
+  const chargers = entries.filter((e) => e.energy > 0).sort((a, b) => b.energy - a.energy).slice(0, 3);
+  const drainers = entries.filter((e) => e.energy < 0).sort((a, b) => a.energy - b.energy).slice(0, 3);
+
+  tab.innerHTML = `<div class="grid-gap">
+    <div class="stats">
+      <div class="stat"><div class="val">${entries.length}</div><div class="lbl">Entries</div></div>
+      <div class="stat"><div class="val" style="color:var(--teal)">${avgEng.toFixed(1)}/5</div><div class="lbl">Avg engagement</div></div>
+      <div class="stat"><div class="val" style="color:${energyColorVar(avgEn)}">${avgEn > 0 ? "+" : ""}${avgEn.toFixed(1)}</div><div class="lbl">Avg energy</div></div>
+    </div>
+
+    <div class="card tight">
+      <h3 class="sect">Flow moments (${flows.length})</h3>
+      ${flows.length === 0
+        ? `<p class="muted">None yet. Watch for moments where time disappears.</p>`
+        : flows.slice(0, 5).map((e) => `<p class="sect-line">◉ ${esc(e.activity)}</p>`).join("")}
+    </div>
+
+    <div class="card tight">
+      <h3 class="sect" style="color:var(--amber)">Top chargers</h3>
+      ${chargers.length === 0
+        ? `<p class="muted">Nothing energizing logged yet.</p>`
+        : chargers.map((e) => `<p class="sect-line">+${e.energy} · ${esc(e.activity)}</p>`).join("")}
+    </div>
+
+    <div class="card tight">
+      <h3 class="sect" style="color:var(--plum)">Top drainers</h3>
+      ${drainers.length === 0
+        ? `<p class="muted">Nothing draining logged yet. Nice.</p>`
+        : drainers.map((e) => `<p class="sect-line">${e.energy} · ${esc(e.activity)}</p>`).join("")}
+    </div>
+
+    <p class="muted center" style="font-size:12px">
+      For deeper pattern analysis, use Export and paste into a Claude chat.
+    </p>
+  </div>`;
+}
+
+// ---------- export ----------
+function buildMarkdown() {
+  const byDay = {};
+  [...entries].sort((a, b) => a.ts - b.ts).forEach((e) => {
+    (byDay[dayKey(e.ts)] = byDay[dayKey(e.ts)] || []).push(e);
+  });
+  let md = `# Good Time Journal export\n`;
+  md += `Generated ${new Date().toLocaleDateString("en-SG")} · ${entries.length} entries\n`;
+  md += `Framework: Designing Your Life (Burnett & Evans). Engagement 1-5, Energy -5 to +5, Flow = lost track of time.\n\n`;
+  Object.keys(byDay).forEach((day) => {
+    md += `## ${fmtDate(byDay[day][0].ts)}\n`;
+    byDay[day].forEach((e) => {
+      md += `- **${e.activity}** (${fmtTime(e.ts)}) · Engagement ${e.engagement}/5 · Energy ${signed(e.energy)}${e.flow ? " · FLOW" : ""}\n`;
+      if (e.notes) md += `  - Notes: ${e.notes}\n`;
+      AEIOU_FIELDS.forEach((f) => {
+        if (e.aeiou && e.aeiou[f.key]) md += `  - ${f.label}: ${e.aeiou[f.key]}\n`;
+      });
+    });
+    md += `\n`;
+  });
+  md += `---\n\nSuggested analysis prompt:\n`;
+  md += `Analyze my Good Time Journal above. Identify: 1) activities that consistently engage and energize me, 2) activities that drain me, 3) flow patterns and their common conditions using AEIOU, 4) three insights for redesigning how I spend my time.\n`;
+  return md;
+}
+
+function buildJson() {
+  return JSON.stringify({
+    exported_at: new Date().toISOString(),
+    framework: "Good Time Journal (Designing Your Life)",
+    scales: { engagement: "1-5", energy: "-5 to +5", flow: "boolean" },
+    entries: [...entries].sort((a, b) => a.ts - b.ts),
+  }, null, 2);
+}
+
+const exportText = () => (exportFormat === "markdown" ? buildMarkdown() : buildJson());
+
+function renderExport() {
+  $("fmtMd").classList.toggle("on", exportFormat === "markdown");
+  $("fmtJson").classList.toggle("on", exportFormat === "json");
+  $("copyBtn").disabled = !entries.length;
+  $("downloadBtn").disabled = !entries.length;
+  if (!$("previewBox").hidden) $("previewBox").value = exportText();
+}
+$("fmtMd").addEventListener("click", () => { exportFormat = "markdown"; renderExport(); });
+$("fmtJson").addEventListener("click", () => { exportFormat = "json"; renderExport(); });
+
+$("copyBtn").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(exportText());
+    $("copyBtn").textContent = "Copied ✓";
+    setTimeout(() => { $("copyBtn").textContent = "Copy to clipboard"; }, 1800);
+  } catch (e) {
+    $("previewBox").hidden = false;
+    $("previewToggle").textContent = "Hide preview";
+    renderExport();
+  }
+});
+
+$("downloadBtn").addEventListener("click", () => {
+  const isMd = exportFormat === "markdown";
+  const blob = new Blob([exportText()], { type: isMd ? "text/markdown" : "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = isMd ? "good-time-journal.md" : "good-time-journal.json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+$("previewToggle").addEventListener("click", () => {
+  const box = $("previewBox");
+  box.hidden = !box.hidden;
+  $("previewToggle").textContent = box.hidden ? "Show preview / manual copy" : "Hide preview";
+  if (!box.hidden) box.value = exportText();
+});
+$("previewBox").addEventListener("focus", (ev) => ev.target.select());
+
+// ---------- import ----------
+$("importFile").addEventListener("change", () => {
+  $("importBtn").disabled = !$("importFile").files.length;
+  $("importStatus").textContent = "";
+});
+
+$("importBtn").addEventListener("click", async () => {
+  const file = $("importFile").files[0];
+  if (!file) return;
+  const status = $("importStatus");
+  const btn = $("importBtn");
+  btn.disabled = true;
+  status.textContent = "Reading file…";
+
+  let parsed;
+  try {
+    parsed = JSON.parse(await file.text());
+  } catch (e) {
+    status.textContent = "That file isn't valid JSON.";
+    btn.disabled = false;
+    return;
+  }
+  const incoming = Array.isArray(parsed) ? parsed : parsed.entries;
+  if (!Array.isArray(incoming)) {
+    status.textContent = "Unexpected format — expected an artifact export with an \"entries\" list.";
+    btn.disabled = false;
+    return;
+  }
+
+  const existing = new Set(entries.map((e) => `${e.ts}|${e.activity}`));
+  const rows = [];
+  let skippedDup = 0, skippedBad = 0;
+
+  for (const e of incoming) {
+    const ts = Number(e.ts);
+    const engagementV = Number(e.engagement);
+    const energyV = Number(e.energy);
+    if (!e.activity || !Number.isFinite(ts) ||
+        !(engagementV >= 1 && engagementV <= 5) || !(energyV >= -5 && energyV <= 5)) {
+      skippedBad++;
+      continue;
+    }
+    if (existing.has(`${ts}|${e.activity}`)) { skippedDup++; continue; }
+    rows.push(toRow({
+      ts,
+      activity: String(e.activity),
+      engagement: engagementV,
+      energy: energyV,
+      flow: Boolean(e.flow),
+      notes: String(e.notes || ""),
+      aeiou: { ...EMPTY_AEIOU, ...(e.aeiou || {}) },
+    }));
+  }
+
+  let imported = 0;
+  const CHUNK = 200;
+  for (let i = 0; i < rows.length; i += CHUNK) {
+    status.textContent = `Importing… ${imported}/${rows.length}`;
+    const { error } = await db.from("entries").insert(rows.slice(i, i + CHUNK));
+    if (error) {
+      status.textContent = `Import stopped after ${imported} entries: ${error.message}`;
+      btn.disabled = false;
+      await loadEntries();
+      return;
+    }
+    imported += Math.min(CHUNK, rows.length - i);
+  }
+
+  const parts = [`Imported ${imported} entries.`];
+  if (skippedDup) parts.push(`${skippedDup} already existed.`);
+  if (skippedBad) parts.push(`${skippedBad} skipped (invalid).`);
+  status.textContent = parts.join(" ");
+  $("importFile").value = "";
+  await loadEntries();
+});
+
+// ---------- tabs ----------
+function renderCurrentTab() {
+  if (view === "insights") renderInsights();
+  if (view === "export") renderExport();
+}
+function switchTab(id) {
+  view = id;
+  document.querySelectorAll("nav.tabs button").forEach((b) =>
+    b.classList.toggle("active", b.dataset.tab === id));
+  $("journalTab").hidden = id !== "journal";
+  $("insightsTab").hidden = id !== "insights";
+  $("exportTab").hidden = id !== "export";
+  renderCurrentTab();
+}
+document.querySelectorAll("nav.tabs button").forEach((b) =>
+  b.addEventListener("click", () => switchTab(b.dataset.tab)));
+
+// ---------- boot ----------
+renderEngPicker();
+renderEnergyWord();
+renderWhen();
+init();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
