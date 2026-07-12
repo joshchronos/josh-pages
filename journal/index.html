@@ -32,16 +32,23 @@
     --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   * { box-sizing: border-box; }
+  html { overflow-x: hidden; }
   body {
     margin: 0;
     min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
     background: var(--paper);
     color: var(--ink);
     font-family: var(--sans);
     padding-bottom: 60px;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+  .wrap {
+    max-width: 560px; margin: 0 auto;
+    padding: 0 max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left));
+  }
   [hidden] { display: none !important; }
 
   header.app { padding: 28px 0 10px; position: relative; }
@@ -57,10 +64,10 @@
 
   nav.tabs { display: flex; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
   nav.tabs button {
-    flex: 1; padding: 10px 0; border: none; background: transparent;
+    flex: 1; padding: 10px 2px; border: none; background: transparent;
     border-bottom: 3px solid transparent;
-    color: var(--ink-soft); font-family: var(--sans); font-size: 14px; font-weight: 500;
-    cursor: pointer;
+    color: var(--ink-soft); font-family: var(--sans); font-size: 13px; font-weight: 500;
+    cursor: pointer; min-width: 0;
   }
   nav.tabs button.active { border-bottom-color: var(--teal); color: var(--ink); font-weight: 700; }
 
@@ -125,6 +132,7 @@
   .pill.flow-on { border-color: var(--flow); background: var(--flow-soft); color: var(--flow); }
 
   .when-row { display: flex; gap: 10px; align-items: center; }
+  .when-row input { min-width: 0; }
   .btn-now {
     padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--line);
     background: var(--card); color: var(--teal); font-family: var(--sans);
@@ -193,6 +201,23 @@
   }
   .hint-box { background: var(--teal-soft); border-radius: 14px; padding: 14px 16px; font-size: 13px; color: var(--ink); }
 
+  /* compass / life design dashboard */
+  .gauge { margin-bottom: 20px; }
+  .gauge:last-of-type { margin-bottom: 0; }
+  .gauge-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .gauge-top .g-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase;
+  }
+  .gauge-top .g-val { font-family: var(--serif); font-size: 19px; }
+  .gauge input[type="range"] { height: 8px; }
+  .gauge .g-hint { font-size: 12px; color: var(--ink-soft); margin: 6px 0 8px; }
+  .gauge textarea { min-height: 44px; font-size: 14px; }
+  .snap-history { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .snap-row { font-size: 12px; color: var(--ink-soft); margin: 4px 0; display: flex; justify-content: space-between; gap: 10px; }
+  .view-ta { min-height: 140px; font-size: 14px; line-height: 1.5; }
+  .wordcount { font-size: 11px; color: var(--ink-soft); text-align: right; margin: 4px 0 0; }
+  .save-status { font-size: 12px; font-weight: 600; color: var(--teal); min-height: 1em; margin: 8px 0 0; }
+
   /* login */
   .login-wrap { max-width: 400px; margin: 0 auto; padding: 60px 20px 0; }
   .login-card { background: var(--card); border-radius: 16px; padding: 24px; border: 1px solid var(--line); margin-top: 24px; }
@@ -246,6 +271,7 @@
   <nav class="tabs">
     <button data-tab="journal" class="active">Journal</button>
     <button data-tab="insights">Insights</button>
+    <button data-tab="compass">Compass</button>
     <button data-tab="export">Export</button>
   </nav>
 
@@ -310,6 +336,9 @@
   <!-- ---------- INSIGHTS TAB ---------- -->
   <div id="insightsTab" hidden></div>
 
+  <!-- ---------- COMPASS TAB ---------- -->
+  <div id="compassTab" hidden></div>
+
   <!-- ---------- EXPORT TAB ---------- -->
   <div id="exportTab" hidden>
     <div class="grid-gap">
@@ -366,6 +395,24 @@ const AEIOU_FIELDS = [
   { key: "users",        label: "Users",        hint: "Who else was there? What role did they play?" },
 ];
 const EMPTY_AEIOU = { activities: "", environments: "", interactions: "", objects: "", users: "" };
+
+const AREAS = [
+  { key: "health", label: "Health", color: "#3E7C6B", hint: "Body, mind, spirit. How full is the tank?" },
+  { key: "work",   label: "Work",   color: "#2F5D8A", hint: "Your work life — paid and unpaid, all of it." },
+  { key: "play",   label: "Play",   color: "#DFA050", hint: "Things you do purely for the joy of doing them." },
+  { key: "love",   label: "Love",   color: "#8C5A72", hint: "Connection — people, community, romance." },
+];
+const VIEWS = [
+  { key: "workview", title: "Workview", words: true,
+    hint: "Your philosophy of work. What is work for? Why do it? What makes work good or worthwhile? How does it relate to money, growth, and serving others?",
+    ph: "Aim for about 250 words. This is a working draft — revise it as your thinking sharpens." },
+  { key: "lifeview", title: "Lifeview", words: true,
+    hint: "Your philosophy of life. Why are we here? What is the meaning or purpose of life? Where do family, community, and the wider world fit in? What about good, evil, and things bigger than yourself?",
+    ph: "Aim for about 250 words. There are no wrong answers — just your current answers." },
+  { key: "compass",  title: "True North", words: false,
+    hint: "Read your Workview and Lifeview side by side. Where do they complement each other? Where do they clash? Does one drive the other? When how you spend your time lines up with both, you're sailing true north.",
+    ph: "Notes on how your two views connect, collide, or correct each other…" },
+];
 
 // ---------- helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -437,6 +484,10 @@ let when = null;           // null = now, else "YYYY-MM-DDTHH:MM"
 let aeiou = { ...EMPTY_AEIOU };
 let showAeiou = false;
 let exportFormat = "markdown";
+let dashboards = [];       // dashboard snapshots, newest first
+let reflections = { workview: "", lifeview: "", compass: "" };
+let compassSetupNeeded = false;
+let compassBuilt = false;  // skeleton rendered (kept alive so drafts survive tab switches)
 
 // ---------- banner ----------
 let bannerTimer = null;
@@ -458,6 +509,9 @@ async function init() {
   db.auth.onAuthStateChange((event) => {
     if (event === "SIGNED_OUT") {
       entries = [];
+      dashboards = [];
+      reflections = { workview: "", lifeview: "", compass: "" };
+      compassBuilt = false;
       showLogin();
     }
   });
@@ -474,7 +528,7 @@ async function enterApp() {
   $("loginView").hidden = true;
   $("appView").hidden = false;
   $("logList").innerHTML = `<p class="muted">Loading your journal…</p>`;
-  await loadEntries();
+  await Promise.all([loadEntries(), loadCompass()]);
 }
 
 $("loginForm").addEventListener("submit", async (ev) => {
@@ -777,6 +831,161 @@ function renderInsights() {
   </div>`;
 }
 
+// ---------- compass (Designing Your Life) ----------
+async function loadCompass() {
+  compassBuilt = false;
+  const [snaps, refl] = await Promise.all([
+    db.from("dashboard_snapshots").select("*")
+      .order("taken_on", { ascending: false }).limit(12),
+    db.from("reflections").select("kind,content,updated_at"),
+  ]);
+  const err = snaps.error || refl.error;
+  if (err) {
+    compassSetupNeeded = /does not exist|schema cache|relation|Not Found/i.test(err.message);
+    if (!compassSetupNeeded) showBanner("Couldn't load Compass data: " + err.message);
+    return;
+  }
+  compassSetupNeeded = false;
+  dashboards = snaps.data || [];
+  reflections = { workview: "", lifeview: "", compass: "" };
+  (refl.data || []).forEach((r) => {
+    if (r.kind in reflections) reflections[r.kind] = r.content || "";
+  });
+}
+
+const wordCount = (s) => s.trim() ? s.trim().split(/\s+/).length : 0;
+
+function paintGauge(a) {
+  const inp = $("g-" + a.key);
+  const v = Number(inp.value);
+  $("gval-" + a.key).textContent = v;
+  $("gval-" + a.key).style.color = a.color;
+  inp.style.background = `linear-gradient(to right, ${a.color} ${v}%, #EAE6E1 ${v}%)`;
+}
+
+function renderSnapHistory() {
+  const el = $("snapHistory");
+  if (!el) return;
+  el.innerHTML = !dashboards.length
+    ? `<p class="muted" style="font-size:12px">No snapshots yet — save your first one above.</p>`
+    : dashboards.slice(0, 8).map((s) => `
+        <div class="snap-row">
+          <span>${fmtDate(s.taken_on)}</span>
+          <span>H ${s.health} · W ${s.work} · P ${s.play} · L ${s.love}</span>
+        </div>`).join("");
+}
+
+function renderCompass() {
+  const tab = $("compassTab");
+  if (compassSetupNeeded) {
+    compassBuilt = false;
+    tab.innerHTML = `<div class="card tight">
+      <h3 class="sect">One-time setup needed</h3>
+      <p class="muted">The Compass tables don't exist in the database yet. Run the
+      Compass setup SQL (creates <strong>dashboard_snapshots</strong> and
+      <strong>reflections</strong>) in the Supabase SQL Editor, then reload this page.
+      Your journal keeps working as normal meanwhile.</p></div>`;
+    return;
+  }
+  if (compassBuilt) return; // keep live DOM so unsaved drafts survive tab switches
+  compassBuilt = true;
+
+  const latest = dashboards[0] || null;
+  tab.innerHTML = `<div class="grid-gap">
+    <div class="card tight">
+      <h3 class="sect">Health · Work · Play · Love</h3>
+      <p class="muted" style="margin-bottom:16px">Gauge each area from empty (0) to full (100)
+        and jot where it's at. Saving again on the same day updates today's snapshot.</p>
+      ${AREAS.map((a) => `
+        <div class="gauge">
+          <div class="gauge-top">
+            <span class="g-label" style="color:${a.color}">${a.label}</span>
+            <span class="g-val" id="gval-${a.key}"></span>
+          </div>
+          <input type="range" id="g-${a.key}" min="0" max="100" step="5"
+                 aria-label="${a.label} gauge from 0 to 100">
+          <p class="g-hint">${a.hint}</p>
+          <textarea id="gnote-${a.key}" placeholder="Where is ${a.label.toLowerCase()} at right now? (optional)"></textarea>
+        </div>`).join("")}
+      <div class="mt-14">
+        <button type="button" class="btn-primary" id="dashSaveBtn">Save today's dashboard</button>
+      </div>
+      <p class="save-status" id="dashStatus"></p>
+      <div class="snap-history" id="snapHistory"></div>
+    </div>
+    ${VIEWS.map((v) => `
+      <div class="card tight">
+        <h3 class="sect">${v.title}</h3>
+        <p class="muted" style="margin-bottom:10px">${v.hint}</p>
+        <textarea class="view-ta" id="view-${v.key}" placeholder="${esc(v.ph)}"></textarea>
+        ${v.words ? `<p class="wordcount" id="wc-${v.key}"></p>` : ""}
+        <div class="mt-12">
+          <button type="button" class="btn-outline" id="viewSave-${v.key}" style="width:100%">Save ${v.title}</button>
+        </div>
+        <p class="save-status" id="viewStatus-${v.key}"></p>
+      </div>`).join("")}
+  </div>`;
+
+  AREAS.forEach((a) => {
+    const inp = $("g-" + a.key);
+    inp.value = latest ? latest[a.key] : 50;
+    $("gnote-" + a.key).value = latest ? (latest[a.key + "_note"] || "") : "";
+    inp.addEventListener("input", () => paintGauge(a));
+    paintGauge(a);
+  });
+  renderSnapHistory();
+  $("dashSaveBtn").addEventListener("click", saveDashboard);
+
+  VIEWS.forEach((v) => {
+    const ta = $("view-" + v.key);
+    ta.value = reflections[v.key] || "";
+    if (v.words) {
+      const wc = () => { $("wc-" + v.key).textContent = `${wordCount(ta.value)} words · aim for ~250`; };
+      ta.addEventListener("input", wc);
+      wc();
+    }
+    $("viewSave-" + v.key).addEventListener("click", () => saveReflection(v));
+  });
+}
+
+async function saveDashboard() {
+  const btn = $("dashSaveBtn");
+  btn.disabled = true; btn.textContent = "Saving…";
+  const row = { taken_on: dayKey(Date.now()) };
+  AREAS.forEach((a) => {
+    row[a.key] = Number($("g-" + a.key).value);
+    row[a.key + "_note"] = $("gnote-" + a.key).value.trim();
+  });
+  const { data, error } = await db.from("dashboard_snapshots")
+    .upsert(row, { onConflict: "user_id,taken_on" }).select().single();
+  btn.disabled = false; btn.textContent = "Save today's dashboard";
+  if (error) {
+    showBanner("Couldn't save dashboard: " + error.message);
+    return;
+  }
+  dashboards = [data, ...dashboards.filter((s) => s.taken_on !== data.taken_on)];
+  renderSnapHistory();
+  $("dashStatus").textContent = "Saved ✓";
+  setTimeout(() => { const s = $("dashStatus"); if (s) s.textContent = ""; }, 2500);
+}
+
+async function saveReflection(v) {
+  const btn = $("viewSave-" + v.key);
+  const ta = $("view-" + v.key);
+  btn.disabled = true; btn.textContent = "Saving…";
+  const { error } = await db.from("reflections").upsert(
+    { kind: v.key, content: ta.value.trim(), updated_at: new Date().toISOString() },
+    { onConflict: "user_id,kind" });
+  btn.disabled = false; btn.textContent = "Save " + v.title;
+  if (error) {
+    showBanner(`Couldn't save ${v.title}: ` + error.message);
+    return;
+  }
+  reflections[v.key] = ta.value.trim();
+  $("viewStatus-" + v.key).textContent = "Saved ✓";
+  setTimeout(() => { const s = $("viewStatus-" + v.key); if (s) s.textContent = ""; }, 2500);
+}
+
 // ---------- export ----------
 function buildMarkdown() {
   const byDay = {};
@@ -797,8 +1006,26 @@ function buildMarkdown() {
     });
     md += `\n`;
   });
+  const latest = dashboards[0];
+  const hasViews = VIEWS.some((v) => reflections[v.key]);
+  if (latest) {
+    md += `## Life Design Dashboard (${fmtDate(latest.taken_on)})\n`;
+    md += `Gauges from 0 (empty) to 100 (full).\n`;
+    AREAS.forEach((a) => {
+      const note = latest[a.key + "_note"];
+      md += `- ${a.label}: ${latest[a.key]}/100${note ? ` — ${note}` : ""}\n`;
+    });
+    md += `\n`;
+  }
+  VIEWS.forEach((v) => {
+    if (reflections[v.key]) md += `## ${v.title}\n${reflections[v.key]}\n\n`;
+  });
   md += `---\n\nSuggested analysis prompt:\n`;
-  md += `Analyze my Good Time Journal above. Identify: 1) activities that consistently engage and energize me, 2) activities that drain me, 3) flow patterns and their common conditions using AEIOU, 4) three insights for redesigning how I spend my time.\n`;
+  md += `Analyze my Good Time Journal above. Identify: 1) activities that consistently engage and energize me, 2) activities that drain me, 3) flow patterns and their common conditions using AEIOU, 4) three insights for redesigning how I spend my time.`;
+  if (latest || hasViews) {
+    md += ` Also 5) compare how I actually spend my time against my dashboard${hasViews ? ", Workview, and Lifeview" : ""} — where am I on course, and where am I off my true north?`;
+  }
+  md += `\n`;
   return md;
 }
 
@@ -806,8 +1033,10 @@ function buildJson() {
   return JSON.stringify({
     exported_at: new Date().toISOString(),
     framework: "Good Time Journal (Designing Your Life)",
-    scales: { engagement: "1-5", energy: "-5 to +5", flow: "boolean" },
+    scales: { engagement: "1-5", energy: "-5 to +5", flow: "boolean", dashboard: "0-100 per area" },
     entries: [...entries].sort((a, b) => a.ts - b.ts),
+    dashboard_snapshots: dashboards,
+    reflections,
   }, null, 2);
 }
 
@@ -933,6 +1162,7 @@ $("importBtn").addEventListener("click", async () => {
 // ---------- tabs ----------
 function renderCurrentTab() {
   if (view === "insights") renderInsights();
+  if (view === "compass") renderCompass();
   if (view === "export") renderExport();
 }
 function switchTab(id) {
@@ -941,6 +1171,7 @@ function switchTab(id) {
     b.classList.toggle("active", b.dataset.tab === id));
   $("journalTab").hidden = id !== "journal";
   $("insightsTab").hidden = id !== "insights";
+  $("compassTab").hidden = id !== "compass";
   $("exportTab").hidden = id !== "export";
   renderCurrentTab();
 }

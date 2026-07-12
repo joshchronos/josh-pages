@@ -2,7 +2,7 @@
 // Caches the app shell so the app opens offline. Supabase API calls are
 // never intercepted; data still requires a connection.
 
-const CACHE = "gtj-shell-v1";
+const CACHE = "gtj-shell-v2";
 const SHELL = [
   "./",
   "./index.html",
